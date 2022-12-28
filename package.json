@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "cross-env DEBUG=david-herron-node-course:* node ./bin/www"
+    "start": "cross-env DEBUG=david-herron-node-course:* node ./app.mjs"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
