@@ -1,14 +1,16 @@
 import express from 'express'
-export const router = express.Router();
+import {NotesStore as notes} from "../app.mjs"
+export const router = express.Router()
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Notes' });
+router.get('/', async (req, res, next) => {
+  try {
+    const keyList = await notes.keyList()
+    const keyPromises = keyList.map(key => notes.read(key))
+    const noteList = await Promise.all(keyPromises)
+    res.render('index', {title: 'Notes', noteList});
+  } catch (e) {
+    next(e)
+  }
 });
 
-router.get('/error', function(req, res, next) {
-  next({
-    status: 404,
-    message: "Fake error"
-  });
-});

@@ -12,9 +12,12 @@ import {
   normalizePort, onError, onListening, handle404, basicErrorHandler
 } from './appsupport.mjs';
 import { router as indexRouter } from './routes/index.mjs';
-// import { router as notesRouter } from './routes/notes.mjs';
+import {InMemoryNotesStore} from "./models/notes-memory.mjs";
+import { router as notesRouter } from './routes/notes.mjs';
 
 export const app = express();
+
+export const NotesStore = new InMemoryNotesStore()
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
@@ -28,7 +31,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 // Router function lists
 app.use('/', indexRouter);
-// app.use('/notes', notesRouter);
+app.use('/notes', notesRouter);
 // error handlers
 // catch 404 and forward to error handler
 app.use(handle404);
