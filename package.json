@@ -3,10 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "DEBUG=david-herron-node-course:* node ./bin/www"
+    "start": "cross-env DEBUG=david-herron-node-course:* node ./bin/www"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
+    "cross-env": "^7.0.3",
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "hbs": "~4.0.4",
