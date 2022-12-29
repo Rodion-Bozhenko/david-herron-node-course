@@ -1,3 +1,17 @@
+import DBG from "debug"
+import * as util from 'util';
+const debug = DBG("david-herron-node-course:debug")
+const dbgerror = DBG("david-herron-node-course:error")
+
+process.on('uncaughtException', function(err) {
+    console.error(`I've crashed!!! - ${(err.stack || err)}`);
+});
+
+process.on('unhandledRejection', (reason, p) => {
+    console.error(`Unhandled Rejection at: ${util.inspect(p)} reason:
+   ${reason}`);
+});
+
 export function normalizePort(val) {
     const port = parseInt(val, 10);
     if (isNaN(port)) {
@@ -9,6 +23,7 @@ export function normalizePort(val) {
 }
 
 export function onError(error, port) {
+    dbgerror(error)
     if (error.syscall !== 'listen') {
         throw error;
     }
@@ -33,7 +48,7 @@ export function onListening(server) {
     const bind = typeof addr === 'string'
         ? 'pipe ' + addr
         : 'port ' + addr.port;
-    console.log(`Listening on ${bind}`);
+    debug(`Listening on ${bind}`);
 }
 
 export function handle404(req, res, next) {

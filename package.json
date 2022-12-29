@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "cross-env DEBUG=david-herron-node-course:* nodemon ./app.mjs"
+    "start": "cross-env DEBUG=david-herron-node-course:* nodemon ./app.mjs",
+    "start-with-log": "cross-env REQUEST_LOG_FILE=log.txt REQUEST_LOG_FORMAT=common npm start"
   },
   "dependencies": {
     "bootstrap": "4.5.x",
@@ -16,7 +17,8 @@
     "http-errors": "~1.6.3",
     "jquery": "3.5.x",
     "morgan": "~1.9.1",
-    "popper.js": "1.16.x"
+    "popper.js": "1.16.x",
+    "rotating-file-stream": "^3.0.4"
   },
   "devDependencies": {
     "nodemon": "^2.0.20"

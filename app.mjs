@@ -14,7 +14,10 @@ import {
 import { router as indexRouter } from './routes/index.mjs';
 import {InMemoryNotesStore} from "./models/notes-memory.mjs";
 import { router as notesRouter } from './routes/notes.mjs';
-
+import rfs from "rotating-file-stream"
+import DBG from "debug"
+const debug = DBG("david-herron-node-course:debug")
+const dbgerror = DBG("david-herron-node-course:error")
 export const app = express();
 
 export const NotesStore = new InMemoryNotesStore()
@@ -24,7 +27,15 @@ app.set('view engine', 'hbs');
 hbs.registerPartials(path.join(__dirname, 'partials'));
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
+app.use(logger(process.env.REQUEST_LOG_FORMAT || 'dev', {
+  stream: process.env.REQUEST_LOG_FILE ?
+      rfs.createStream(process.env.REQUEST_LOG_FILE, {
+        size: "10M",
+        interval: "1d",
+        compress: "gzip"
+      })
+      : process.stdout
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -51,3 +62,8 @@ export const server = http.createServer(app);
 server.listen(port);
 server.on('error', (err) => onError(err, port));
 server.on('listening', () => onListening(server));
+
+server.on('request', (req, res) => {
+    debug(`${new Date().toISOString()} request ${req.method}
+   ${req.url}`);
+});
