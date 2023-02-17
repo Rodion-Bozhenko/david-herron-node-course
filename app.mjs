@@ -12,7 +12,10 @@ import {
   normalizePort, onError, onListening, handle404, basicErrorHandler
 } from './appsupport.mjs';
 import { router as indexRouter } from './routes/index.mjs';
-import {InMemoryNotesStore} from "./models/notes-memory.mjs";
+import {useModel as useNotesModel} from "./models/notes-store.mjs";
+useNotesModel(process.env.NOTES_MODEL || "memory")
+    .then(store => {})
+    .catch(error => onError({code: "ENOTESSTORE", error}))
 import { router as notesRouter } from './routes/notes.mjs';
 import rfs from "rotating-file-stream"
 import DBG from "debug"
@@ -20,7 +23,6 @@ const debug = DBG("david-herron-node-course:debug")
 const dbgerror = DBG("david-herron-node-course:error")
 export const app = express();
 
-export const NotesStore = new InMemoryNotesStore()
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
