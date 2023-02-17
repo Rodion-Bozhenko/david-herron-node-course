@@ -4,15 +4,20 @@
   "private": true,
   "scripts": {
     "start": "cross-env DEBUG=david-herron-node-course:* nodemon ./app.mjs",
-    "start-with-log": "cross-env REQUEST_LOG_FILE=log.txt REQUEST_LOG_FORMAT=common npm start"
+    "start-with-log": "cross-env REQUEST_LOG_FILE=log.txt REQUEST_LOG_FORMAT=common npm start",
+    "fs-start": "cross-env DEBUG=david-herron-node-course:* PORT=3000 NOTES_MODEL=fs node ./app.mjs",
+    "fs-server1": "cross-env NOTES_MODEL=fs PORT=3001 node ./app.mjs",
+    "fs-server2": "cross-env NOTES_MODEL=fs PORT=3002 node ./app.mjs"
   },
   "dependencies": {
+    "body-parser": "^1.20.1",
     "bootstrap": "4.5.x",
     "cookie-parser": "~1.4.4",
     "cross-env": "^7.0.3",
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "feather-icons": "4.25.x",
+    "fs-extra": "^11.1.0",
     "hbs": "~4.0.4",
     "http-errors": "~1.6.3",
     "jquery": "3.5.x",

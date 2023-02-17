@@ -1,5 +1,6 @@
 import express from 'express'
-import {NotesStore as notes} from "../app.mjs"
+import {NotesStore as notes} from "../models/notes-store.mjs";
+
 export const router = express.Router()
 
 /* GET home page. */
