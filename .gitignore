@@ -60,3 +60,7 @@ typings/
 
 # next.js build output
 .next
+
+# db files
+notes-fs-data
+notes.level

@@ -15,6 +15,7 @@ router.get("/add", (req, res, next) => {
 router.post("/save", async (req, res, next) => {
     try {
         const {docreate, notekey, title, body} = req.body
+        console.log("BODY: ", body)
         let note
         if (docreate === "create") {
             note = await notes.create(notekey, title, body)
