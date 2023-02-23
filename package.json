@@ -22,10 +22,13 @@
     "hbs": "~4.0.4",
     "http-errors": "~1.6.3",
     "jquery": "3.5.x",
+    "js-yaml": "^4.1.0",
     "level": "^8.0.0",
     "morgan": "~1.9.1",
+    "mysql": "^2.18.1",
     "popper.js": "1.16.x",
     "rotating-file-stream": "^3.0.4",
+    "sequelize": "^6.28.2",
     "sqlite3": "^5.1.4"
   },
   "devDependencies": {
