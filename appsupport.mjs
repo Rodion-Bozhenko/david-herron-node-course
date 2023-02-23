@@ -1,7 +1,10 @@
 import DBG from "debug"
-import * as util from 'util';
+import * as util from 'util'
+import {NotesStore} from "./models/notes-store.mjs"
+import {server} from "./app.mjs"
 const debug = DBG("david-herron-node-course:debug")
 const dbgerror = DBG("david-herron-node-course:error")
+
 
 process.on('uncaughtException', function(err) {
     console.error(`I've crashed!!! - ${(err.stack || err)}`);
@@ -11,6 +14,18 @@ process.on('unhandledRejection', (reason, p) => {
     console.error(`Unhandled Rejection at: ${util.inspect(p)} reason:
    ${reason}`);
 });
+
+process.on("SIGTERM", onProcessDeath)
+process.on("SIGINT", onProcessDeath)
+process.on("SIGHUP", onProcessDeath)
+process.on("exit", () => {debug("exiting...")})
+
+async function onProcessDeath() {
+    debug("closing server, closing db...")
+    await NotesStore.close()
+    await server.close()
+    process.exit(0)
+}
 
 export function normalizePort(val) {
     const port = parseInt(val, 10);
