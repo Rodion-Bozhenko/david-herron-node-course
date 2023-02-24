@@ -8,7 +8,8 @@
     "fs-start": "cross-env DEBUG=david-herron-node-course:* PORT=3000 NOTES_MODEL=fs node ./app.mjs",
     "level-start": "cross-env DEBUG=david-herron-node-course:* PORT=3000 NOTES_MODEL=level node ./app.mjs",
     "sqlite3-setup": "sqlite3 notes.sqlite3 --init models/schema-sqlite3.sql",
-    "sqlite3-start": "cross-env SQLITE_FILE=notes.sqlite3 DEBUG=david-herron-node-course:* NOTES_MODEL=sqlite3 node ./app.mjs"
+    "sqlite3-start": "cross-env SQLITE_FILE=notes.sqlite3 DEBUG=david-herron-node-course:* NOTES_MODEL=sqlite3 node ./app.mjs",
+    "sequelize-start": "cross-env DEBUG=david-herron-node-course:* SEQUELIZE_CONNECT=models/sequelize-sqlite.yaml NOTES_MODEL=sequelize node ./app.mjs"
   },
   "dependencies": {
     "body-parser": "^1.20.1",
@@ -22,10 +23,13 @@
     "hbs": "~4.0.4",
     "http-errors": "~1.6.3",
     "jquery": "3.5.x",
+    "js-yaml": "^4.1.0",
     "level": "^8.0.0",
     "morgan": "~1.9.1",
+    "mysql": "^2.18.1",
     "popper.js": "1.16.x",
     "rotating-file-stream": "^3.0.4",
+    "sequelize": "^6.28.2",
     "sqlite3": "^5.1.4"
   },
   "devDependencies": {
