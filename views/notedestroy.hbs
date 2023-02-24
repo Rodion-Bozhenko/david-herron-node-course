@@ -1,7 +1,6 @@
 <form method='POST' action='/notes/destroy/confirm'>
     <div class="container-fluid">
-        <input type='hidden' name='notekey' value='
-        {{#if note}}{{notekey}}{{/if}}'>
+        <input type='hidden' name='notekey' value='{{#if note}}{{notekey}}{{/if}}'>
         <p class="form-text">Delete {{note.title}}?</p>
         <div class="btn-group">
             <button type="submit" value='DELETE'
