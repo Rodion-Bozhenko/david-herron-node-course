@@ -64,3 +64,4 @@ typings/
 # db files
 notes-fs-data
 notes.level
+data
