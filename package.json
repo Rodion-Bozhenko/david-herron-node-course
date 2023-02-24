@@ -8,7 +8,8 @@
     "fs-start": "cross-env DEBUG=david-herron-node-course:* PORT=3000 NOTES_MODEL=fs node ./app.mjs",
     "level-start": "cross-env DEBUG=david-herron-node-course:* PORT=3000 NOTES_MODEL=level node ./app.mjs",
     "sqlite3-setup": "sqlite3 notes.sqlite3 --init models/schema-sqlite3.sql",
-    "sqlite3-start": "cross-env SQLITE_FILE=notes.sqlite3 DEBUG=david-herron-node-course:* NOTES_MODEL=sqlite3 node ./app.mjs"
+    "sqlite3-start": "cross-env SQLITE_FILE=notes.sqlite3 DEBUG=david-herron-node-course:* NOTES_MODEL=sqlite3 node ./app.mjs",
+    "sequelize-start": "cross-env DEBUG=david-herron-node-course:* SEQUELIZE_CONNECT=models/sequelize-sqlite.yaml NOTES_MODEL=sequelize node ./app.mjs"
   },
   "dependencies": {
     "body-parser": "^1.20.1",
