@@ -1,0 +1,8 @@
+partials
+views
+data
+notes-sequelize.sqlite3
+notes.sqlite3
+notes-fs-data
+notes.level
+node_modules

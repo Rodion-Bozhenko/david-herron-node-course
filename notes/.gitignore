@@ -4,8 +4,10 @@ logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.idea
+../.idea
 log.txt
+.idea
+data
 # Runtime data
 pids
 *.pid
@@ -62,6 +64,6 @@ typings/
 .next
 
 # db files
-notes-fs-data
-notes.level
-data
+notes/notes-fs-data
+notes/notes.level
+notes/data

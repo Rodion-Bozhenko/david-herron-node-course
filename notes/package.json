@@ -1,0 +1,44 @@
+{
+  "name": "david-herron-node-course",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "cross-env DEBUG=david-herron-node-course:* nodemon app.mjs",
+    "start-with-log": "cross-env REQUEST_LOG_FILE=log.txt REQUEST_LOG_FORMAT=common npm start",
+    "fs-start": "cross-env DEBUG=david-herron-node-course:* PORT=3000 NOTES_MODEL=fs node app.mjs",
+    "level-start": "cross-env DEBUG=david-herron-node-course:* PORT=3000 NOTES_MODEL=level node app.mjs",
+    "sqlite3-setup": "sqlite3 notes.sqlite3 --init notes/models/schema-sqlite3.sql",
+    "sqlite3-start": "cross-env SQLITE_FILE=notes.sqlite3 DEBUG=david-herron-node-course:* NOTES_MODEL=sqlite3 node app.mjs",
+    "sequelize-start": "cross-env DEBUG=david-herron-node-course:* SEQUELIZE_CONNECT=models/sequelize-sqlite.yaml NOTES_MODEL=sequelize node app.mjs",
+    "run-mongodb": "mongod --dbpath data",
+    "mongodb-start": "cross-env DEBUG=david-herron-node-course:* MONGO_URL=mongodb://localhost/ MONGO_DBNAME=notes NOTES_MODEL=mongodb node notes/app.mjs"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.1",
+    "bootstrap": "4.5.x",
+    "cookie-parser": "~1.4.4",
+    "cross-env": "^7.0.3",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "feather-icons": "4.25.x",
+    "fs-extra": "^11.1.0",
+    "hbs": "~4.0.4",
+    "http-errors": "~1.6.3",
+    "jquery": "3.5.x",
+    "js-yaml": "^4.1.0",
+    "level": "^8.0.0",
+    "mongodb": "^5.1.0",
+    "morgan": "~1.9.1",
+    "mysql": "^2.18.1",
+    "popper.js": "1.16.x",
+    "rotating-file-stream": "^3.0.4",
+    "sequelize": "^6.28.2",
+    "sqlite3": "^5.1.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.34.0",
+    "eslint-config-prettier": "^8.6.0",
+    "nodemon": "^2.0.20",
+    "prettier": "^2.8.4"
+  }
+}
