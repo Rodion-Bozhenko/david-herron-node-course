@@ -54,7 +54,7 @@ program
       emails: [],
       photos: []
     }
-    if (typeof cmdObj !== "undefined") toPost.emails.push(cmdObj.email)
+    if (typeof cmdObj.email !== "undefined") toPost.emails.push(cmdObj.email)
     client(program).post("/create-user", toPost, (err, req, res, obj) => {
       if (err) console.error(err.stack)
       else console.log("Created " + util.inspect(obj))
@@ -103,6 +103,32 @@ program
     client(program).get("/list", (err, req, res, obj) => {
       if (err) console.error(err.stack)
       else console.log(obj)
+    })
+  })
+
+program
+  .command("update <username>")
+  .description("Update a user in the user server")
+  .option("--password <password>", "Password for new user")
+  .option("--family-name <familyName>", "Family name, or last name, if the user")
+  .option("--given-name <givenName>", "Given name, or first name, of the user")
+  .option("--middle-name <middleName>", "Middle name of the user")
+  .option("--email <email>", "Email address for the user")
+  .action((username, cmdObj) => {
+    const toPost = {
+      username,
+      password: cmdObj.password,
+      provider: "local",
+      familyName: cmdObj.familyName,
+      givenName: cmdObj.givenName,
+      middleName: cmdObj.middleName,
+      emails: [],
+      photos: []
+    }
+    if (typeof cmdObj.email !== "undefined") toPost.emails.push(cmdObj.email)
+    client(program).post(`/update-user/${username}`, toPost, (err, req, res, obj) => {
+      if (err) console.error(err.stack)
+      else console.log("Updated " + util.inspect(obj))
     })
   })
 
