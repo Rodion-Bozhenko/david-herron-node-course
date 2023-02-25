@@ -6,7 +6,8 @@ import {connectDB, createUser, findOneUser} from "./users-sequelize.mjs"
 const log = DBG("users:service")
 
 const server = restify.createServer({
-  name: "User-Auth-Service"
+  name: "User-Auth-Service",
+  version: "0.0.1"
 })
 
 server.use(restify.plugins.authorizationParser())
@@ -16,20 +17,18 @@ server.use(restify.plugins.bodyParser({
   mapParams: true
 }))
 
-server.post("/create-user", async (req, res, next) => {
+server.post("/create-user", async (req, res) => {
   try {
     await connectDB()
     const result = await createUser(req)
     res.contentType = "json"
     res.send(result)
-    next(false)
   } catch (e) {
-    res.send(500, e)
-    next(false)
+    res.send(500, e.toString())
   }
 })
 
-server.post("/find-or-create", async (req, res, next) => {
+server.post("/find-or-create", async (req, res) => {
   try {
     await connectDB()
     let user = await findOneUser(req.params.username)
@@ -39,15 +38,13 @@ server.post("/find-or-create", async (req, res, next) => {
     }
     res.contentType = "json"
     res.send(user)
-    return next(false)
   } catch (e) {
-    res.send(500, e)
-    next(false)
+    res.send(500, e.toString())
   }
 })
 
 server.listen(process.env.PORT, "localhost", function() {
-  log(server.name + " listening at " + server.debugInfo().port)
+  log(server.name + " listening at " + server.url)
 })
 
 process.on("uncaughtException", function(err) {
