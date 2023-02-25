@@ -11,7 +11,7 @@
     "restify": "^11.1.0",
     "restify-clients": "^4.2.0",
     "sequelize": "^6.29.0",
-    "sqlite": "^4.1.2"
+    "sqlite3": "^5.1.4"
   },
   "devDependencies": {
     "eslint": "^8.34.0",
@@ -19,7 +19,7 @@
     "prettier": "^2.8.4"
   },
   "scripts": {
-    "start": "cross-env DEBUG=users:* PORT=5858 SEQUELIZE_CONNEC=sequelize-sqlite.yaml node ./user-server.mjs"
+    "start": "cross-env DEBUG=users:* PORT=5858 SEQUELIZE_CONNECT=sequelize-sqlite.yaml node ./user-server.mjs"
   },
   "author": "",
   "license": "ISC",
