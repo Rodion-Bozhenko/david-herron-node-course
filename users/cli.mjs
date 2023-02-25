@@ -80,9 +80,9 @@ program
       photos: []
     }
     if (typeof cmdObj !== "undefined") toPost.emails.push(cmdObj.email)
-    client(program).post("/create-user", toPost, (err, req, res, obj) => {
+    client(program).post("/find-or-create", toPost, (err, req, res, obj) => {
       if (err) console.error(err.stack)
-      else console.log("Created " + util.inspect(obj))
+      else console.log("Found or created " + util.inspect(obj))
     })
   })
 
