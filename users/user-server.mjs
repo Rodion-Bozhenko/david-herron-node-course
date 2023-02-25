@@ -1,7 +1,7 @@
 import restify from "restify"
 import DBG from "debug"
 import * as util from "util"
-import {connectDB, createUser, findOneUser, sanitizedUser, SQUser} from "./users-sequelize.mjs"
+import {connectDB, createUser, findOneUser, sanitizedUser, SQUser, userParams} from "./users-sequelize.mjs"
 
 const log = DBG("users:service")
 
@@ -66,6 +66,19 @@ server.get("/list", async (req, res) => {
     if (!userList) userList = []
     res.contentType = "json"
     res.send(userList)
+  } catch (e) {
+    res.send(500, e.toString())
+  }
+})
+
+server.post("/update-user/:username", async (req, res) => {
+  try {
+    await connectDB()
+    let toUpdate = userParams(req)
+    await SQUser.update(toUpdate, {where: {username: req.params.username}})
+    const result = await findOneUser(req.params.username)
+    res.contentType = "json"
+    res.send(result)
   } catch (e) {
     res.send(500, e.toString())
   }
