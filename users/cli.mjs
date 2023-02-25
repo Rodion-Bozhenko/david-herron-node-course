@@ -143,5 +143,16 @@ program
       })
   })
 
+program
+  .command("password-check <username> <password>")
+  .description("Check whether the user password checks out")
+  .action((username, password) => {
+    client(program).post("/password-check", {username, password},
+      (err, req, res, obj) => {
+        if (err) console.error(err.stack)
+        else console.log(obj)
+      })
+  })
+
 
 program.parse(process.argv)

@@ -109,6 +109,33 @@ server.del("/destroy/:username", async (req, res) => {
   }
 })
 
+server.post("/password-check", async (req, res) => {
+  try {
+    await connectDB()
+    const user = await SQUser.findOne({where: {username: req.params.username}})
+    let checked
+    if (!user) {
+      checked = {
+        check: false,
+        username: req.params.username,
+        message: "Could not find user"
+      }
+    } else if (user.password === req.params.password) {
+      checked = {check: true, username: user.username}
+    } else {
+      checked = {
+        check: false,
+        username: req.params.username,
+        message: "Incorrect password"
+      }
+    }
+    res.contentType = "json"
+    res.send(checked)
+  } catch (e) {
+    res.send(500, e.toString())
+  }
+})
+
 server.listen(process.env.PORT, "localhost", function() {
   log(server.name + " listening at " + server.url)
 })
