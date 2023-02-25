@@ -1,6 +1,7 @@
 import restify from "restify"
 import DBG from "debug"
 import * as util from "util"
+import {connectDB, createUser, findOneUser} from "./users-sequelize.mjs"
 
 const log = DBG("users:service")
 
@@ -14,6 +15,36 @@ server.use(restify.plugins.queryParser())
 server.use(restify.plugins.bodyParser({
   mapParams: true
 }))
+
+server.post("/create-user", async (req, res, next) => {
+  try {
+    await connectDB()
+    const result = await createUser(req)
+    res.contentType = "json"
+    res.send(result)
+    next(false)
+  } catch (e) {
+    res.send(500, e)
+    next(false)
+  }
+})
+
+server.post("/find-or-create", async (req, res, next) => {
+  try {
+    await connectDB()
+    let user = await findOneUser(req.params.username)
+    if (!user) {
+      user = await createUser(req)
+      if (!user) throw new Error("No user created")
+    }
+    res.contentType = "json"
+    res.send(user)
+    return next(false)
+  } catch (e) {
+    res.send(500, e)
+    next(false)
+  }
+})
 
 server.listen(process.env.PORT, "localhost", function() {
   log(server.name + " listening at " + server.debugInfo().port)
