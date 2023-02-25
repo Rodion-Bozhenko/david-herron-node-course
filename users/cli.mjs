@@ -132,5 +132,16 @@ program
     })
   })
 
+program
+  .command("destroy <username>")
+  .description("Destroy a user on the user server")
+  .action((username) => {
+    client(program).del(`/destroy/${username}`,
+      (err, req, res, obj) => {
+        if (err) console.error(err.stack)
+        else console.log("Deleted - result= " + util.inspect(obj))
+      })
+  })
+
 
 program.parse(process.argv)

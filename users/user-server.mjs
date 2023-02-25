@@ -1,7 +1,14 @@
 import restify from "restify"
 import DBG from "debug"
 import * as util from "util"
-import {connectDB, createUser, findOneUser, sanitizedUser, SQUser, userParams} from "./users-sequelize.mjs"
+import {
+  connectDB,
+  createUser,
+  findOneUser,
+  sanitizedUser,
+  SQUser,
+  userParams
+} from "./users-sequelize.mjs"
 
 const log = DBG("users:service")
 
@@ -13,9 +20,11 @@ const server = restify.createServer({
 server.use(restify.plugins.authorizationParser())
 server.use(check)
 server.use(restify.plugins.queryParser())
-server.use(restify.plugins.bodyParser({
-  mapParams: true
-}))
+server.use(
+  restify.plugins.bodyParser({
+    mapParams: true
+  })
+)
 
 server.post("/create-user", async (req, res) => {
   try {
@@ -62,7 +71,7 @@ server.get("/list", async (req, res) => {
   try {
     await connectDB()
     let userList = await SQUser.findAll({})
-    userList = userList.map(user => sanitizedUser(user))
+    userList = userList.map((user) => sanitizedUser(user))
     if (!userList) userList = []
     res.contentType = "json"
     res.send(userList)
@@ -79,6 +88,22 @@ server.post("/update-user/:username", async (req, res) => {
     const result = await findOneUser(req.params.username)
     res.contentType = "json"
     res.send(result)
+  } catch (e) {
+    res.send(500, e.toString())
+  }
+})
+
+server.del("/destroy/:username", async (req, res) => {
+  try {
+    await connectDB()
+    const user = await SQUser.findOne({where: {username: req.params.username}})
+    if (!user) {
+      res.send(404, new Error(`Didn't find requested ${req.params.username} to delete`))
+    } else {
+      await user.destroy()
+      res.contentType = "json"
+      res.send({})
+    }
   } catch (e) {
     res.send(500, e.toString())
   }
@@ -104,7 +129,10 @@ function check(req, res, next) {
   if (req.authorization && req.authorization.basic) {
     let found = false
     for (let auth of apiKeys) {
-      if (auth.key === req.authorization.basic.password && auth.user === req.authorization.basic.username) {
+      if (
+        auth.key === req.authorization.basic.password &&
+        auth.user === req.authorization.basic.username
+      ) {
         found = true
         break
       }
