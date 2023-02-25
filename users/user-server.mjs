@@ -1,7 +1,7 @@
 import restify from "restify"
 import DBG from "debug"
 import * as util from "util"
-import {connectDB, createUser, findOneUser} from "./users-sequelize.mjs"
+import {connectDB, createUser, findOneUser, sanitizedUser, SQUser} from "./users-sequelize.mjs"
 
 const log = DBG("users:service")
 
@@ -38,6 +38,34 @@ server.post("/find-or-create", async (req, res) => {
     }
     res.contentType = "json"
     res.send(user)
+  } catch (e) {
+    res.send(500, e.toString())
+  }
+})
+
+server.get("/find/:username", async (req, res) => {
+  try {
+    await connectDB()
+    const user = await findOneUser(req.params.username)
+    if (!user) {
+      res.send(404, new Error("Did not find " + req.params.username))
+    } else {
+      res.contentType = "json"
+      res.send(user)
+    }
+  } catch (e) {
+    res.send(500, e.toString())
+  }
+})
+
+server.get("/list", async (req, res) => {
+  try {
+    await connectDB()
+    let userList = await SQUser.findAll({})
+    userList = userList.map(user => sanitizedUser(user))
+    if (!userList) userList = []
+    res.contentType = "json"
+    res.send(userList)
   } catch (e) {
     res.send(500, e.toString())
   }
