@@ -86,5 +86,25 @@ program
     })
   })
 
+program
+  .command("find <username>")
+  .description("Search for a user on the user server")
+  .action((username) => {
+    client(program).get(`/find/${username}`, (err, req, res, obj) => {
+      if (err) console.error(err.stack)
+      else console.log("Found " + util.inspect(obj))
+    })
+  })
+
+program
+  .command("list-users")
+  .description("List all users on the user server")
+  .action(() => {
+    client(program).get("/list", (err, req, res, obj) => {
+      if (err) console.error(err.stack)
+      else console.log(obj)
+    })
+  })
+
 
 program.parse(process.argv)
