@@ -1,18 +1,21 @@
 import express from "express"
 import {NotesStore as notes} from "../models/notes-store.mjs"
+import {ensureAuthenticated} from "./users.mjs"
+
 export const router = express.Router()
 
 // Add note
-router.get("/add", (req, res) => {
+router.get("/add", ensureAuthenticated, (req, res) => {
   res.render("noteedit", {
     title: "Add a Note",
     docreate: true,
     notekey: "",
+    user: req.user,
     note: undefined
   })
 })
 
-router.post("/save", async (req, res, next) => {
+router.post("/save", ensureAuthenticated, async (req, res, next) => {
   try {
     const {docreate, notekey, title, body} = req.body
     console.log("BODY: ", body)
@@ -33,6 +36,7 @@ router.get("/view", async (req, res, next) => {
     res.render("noteView", {
       title: note ? note.title : "",
       notekey: req.query.key,
+      user: req.user,
       note
     })
   } catch (e) {
@@ -40,13 +44,14 @@ router.get("/view", async (req, res, next) => {
   }
 })
 
-router.get("/edit", async (req, res, next) => {
+router.get("/edit", ensureAuthenticated, async (req, res, next) => {
   try {
     const note = await notes.read(req.query.key)
     res.render("noteedit", {
       title: note ? "Edit " + note.title : "Add a Note",
       docreate: false,
       notekey: req.query.key,
+      user: req.user,
       note
     })
   } catch (e) {
@@ -54,12 +59,13 @@ router.get("/edit", async (req, res, next) => {
   }
 })
 
-router.get("/destroy", async (req, res, next) => {
+router.get("/destroy", ensureAuthenticated, async (req, res, next) => {
   try {
     const note = await notes.read(req.query.key)
     res.render("notedestroy", {
       title: note ? `Delete ${note.title}` : "",
       notekey: req.query.key,
+      user: req.user,
       note
     })
   } catch (e) {
@@ -67,7 +73,7 @@ router.get("/destroy", async (req, res, next) => {
   }
 })
 
-router.post("/destroy/confirm", async (req, res, next) => {
+router.post("/destroy/confirm", ensureAuthenticated, async (req, res, next) => {
   try {
     await notes.destroy(req.body.notekey)
     res.redirect("/")

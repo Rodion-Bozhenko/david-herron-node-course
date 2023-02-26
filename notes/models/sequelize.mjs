@@ -1,6 +1,6 @@
 import {promises as fs} from "fs"
 import jsYaml from "js-yaml"
-import {Sequelize} from "notes/models/sequelize.mjs"
+import {Sequelize} from "sequelize"
 
 let sequelize
 

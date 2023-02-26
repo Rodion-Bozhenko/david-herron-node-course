@@ -7,6 +7,7 @@ yarn-error.log*
 ../.idea
 log.txt
 .idea
+data
 # Runtime data
 pids
 *.pid
@@ -63,7 +64,6 @@ typings/
 .next
 
 # db files
-notes.level
-data
-notes-fs-data
-sessions
+notes/notes-fs-data
+notes/notes.level
+notes/data
