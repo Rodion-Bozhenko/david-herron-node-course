@@ -2,10 +2,11 @@ import DBG from "debug"
 import * as util from "util"
 import {NotesStore} from "./models/notes-store.mjs"
 import {server} from "./app.mjs"
-const debug = DBG("david-herron-node-course:debug")
-const dbgerror = DBG("david-herron-node-course:error")
 
-process.on("uncaughtException", function (err) {
+const debug = DBG("notes:debug")
+const dbgerror = DBG("notes:error")
+
+process.on("uncaughtException", function(err) {
   console.error(`I've crashed!!! - ${err.stack || err}`)
 })
 

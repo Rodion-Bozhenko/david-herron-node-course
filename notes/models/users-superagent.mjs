@@ -4,9 +4,6 @@ import DBG from "debug"
 
 const URL = url.URL
 
-const debug = DBG("david-herron-node-course:users-superagent")
-const dbgerror = DBG("david-herron-node-course:error-superagent")
-
 const authId = "them"
 const authCode = "D4ED43C0-8BD6-4FE2-B358-7C0E230D11EF"
 

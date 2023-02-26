@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser"
 import bodyParser from "body-parser"
 import * as http from "http"
 import {approotdir} from "./approotdir.mjs"
+
 const __dirname = approotdir
 import {
   normalizePort,
@@ -16,13 +17,16 @@ import {
 } from "./appsupport.mjs"
 import {router as indexRouter} from "./routes/index.mjs"
 import {useModel as useNotesModel} from "./models/notes-store.mjs"
+
 useNotesModel(process.env.NOTES_MODEL || "memory")
-  .then(() => {})
+  .then(() => {
+  })
   .catch((error) => onError({code: "ENOTESSTORE", error}))
 import {router as notesRouter} from "./routes/notes.mjs"
 import rfs from "rotating-file-stream"
 import DBG from "debug"
-const debug = DBG("david-herron-node-course:debug")
+
+const debug = DBG("notes:debug")
 export const app = express()
 
 // view engine setup
@@ -35,10 +39,10 @@ app.use(
   logger(process.env.REQUEST_LOG_FORMAT || "dev", {
     stream: process.env.REQUEST_LOG_FILE
       ? rfs.createStream(process.env.REQUEST_LOG_FILE, {
-          size: "10M",
-          interval: "1d",
-          compress: "gzip"
-        })
+        size: "10M",
+        interval: "1d",
+        compress: "gzip"
+      })
       : process.stdout
   })
 )
