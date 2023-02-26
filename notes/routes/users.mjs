@@ -11,6 +11,21 @@ const LocalStrategy = passportLocal.Strategy
 
 export const router = express.Router()
 
+export function initPassport(app) {
+  app.use(passport.initialize())
+  app.use(passport.session())
+}
+
+export function ensureAuthenticated(req, res, next) {
+  try {
+    // req.user is set by Passport in the deserialize function
+    if (req.user) next()
+    else res.redirect("/users/login")
+  } catch (e) {
+    next(e)
+  }
+}
+
 router.get("/login", (req, res, next) => {
   try {
     res.render("login", {title: "Login to Notes", user: req.user})
@@ -29,10 +44,11 @@ router.post(
 
 router.get("/logout", (req, res, next) => {
   try {
-    req.session.destroy()
-    req.logout()
-    res.clearCookie(sessionCookieName)
-    res.redirect("/")
+    req.logout(function(err) {
+      if (err) return next(err)
+      res.clearCookie(sessionCookieName)
+      res.redirect("/")
+    })
   } catch (e) {
     next(e)
   }
@@ -76,18 +92,3 @@ passport.deserializeUser(async (username, done) => {
     done(e)
   }
 })
-
-export function initPassport(app) {
-  app.use(passport.initialize({userProperty: "user"}))
-  app.use(passport.session({secret: "keyboard mouse"}))
-}
-
-export function ensureAuthenticated(req, res, next) {
-  try {
-    // req.user is set by Passport in the deserialize function
-    if (req.user) next()
-    else res.redirect("/users/login")
-  } catch (e) {
-    next(e)
-  }
-}
