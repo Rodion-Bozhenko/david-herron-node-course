@@ -16,15 +16,21 @@ import {
   basicErrorHandler
 } from "./appsupport.mjs"
 import {router as indexRouter} from "./routes/index.mjs"
+import {router as notesRouter} from "./routes/notes.mjs"
+import {router as usersRouter, initPassport} from "./routes/users.mjs"
+import rfs from "rotating-file-stream"
+import DBG from "debug"
 import {useModel as useNotesModel} from "./models/notes-store.mjs"
+import session from "express-session"
+import sessionFileStore from "session-file-store"
+
+const FileStore = sessionFileStore(session)
+export const sessionCookieName = "notescookie.sid"
 
 useNotesModel(process.env.NOTES_MODEL || "memory")
   .then(() => {
   })
   .catch((error) => onError({code: "ENOTESSTORE", error}))
-import {router as notesRouter} from "./routes/notes.mjs"
-import rfs from "rotating-file-stream"
-import DBG from "debug"
 
 const debug = DBG("notes:debug")
 export const app = express()
@@ -49,6 +55,14 @@ app.use(
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(cookieParser())
+app.use(session({
+  store: new FileStore({path: "sessions"}),
+  secret: "keyboard mouse",
+  resave: true,
+  saveUninitialized: true,
+  name: sessionCookieName
+}))
+initPassport(app)
 app.use(express.static(path.join(__dirname, "public")))
 app.use(
   "/assets/vendor/bootstrap",
@@ -71,6 +85,7 @@ app.use(
 // Router function lists
 app.use("/", indexRouter)
 app.use("/notes", notesRouter)
+app.use("/users", usersRouter)
 // error handlers
 // catch 404 and forward to error handler
 app.use(handle404)
