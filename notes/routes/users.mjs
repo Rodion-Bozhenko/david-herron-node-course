@@ -3,6 +3,9 @@ import passport from "passport"
 import passportLocal from "passport-local"
 import * as usersModel from "../models/users-superagent.mjs"
 import {sessionCookieName} from "../app.mjs"
+import DBG from "debug"
+
+const debug = DBG("notes:users-router")
 
 const LocalStrategy = passportLocal.Strategy
 
@@ -16,10 +19,13 @@ router.get("/login", (req, res, next) => {
   }
 })
 
-router.post("/login", passport.authenticate("local", {
-  successRedirect: "/",
-  failureRedirect: "login"
-}))
+router.post(
+  "/login",
+  passport.authenticate(
+    "local",
+    {failureRedirect: "/users/login", successRedirect: "/"}
+  )
+)
 
 router.get("/logout", (req, res, next) => {
   try {
@@ -32,18 +38,27 @@ router.get("/logout", (req, res, next) => {
   }
 })
 
-passport.use(new LocalStrategy(async (username, password, done) => {
-  try {
-    const checkResult = await usersModel.userPasswordCheck(username, password)
-    if (checkResult.check) {
-      done(null, {id: checkResult.username, username: checkResult.username})
-    } else {
-      done(null, false, checkResult.message)
+passport.use(
+  new LocalStrategy(
+    {usernameField: "username", passwordField: "password"},
+    async (username, password, done) => {
+      try {
+        const checkResult = await usersModel.userPasswordCheck(
+          username,
+          password
+        )
+        debug("PASSWORD_CHECK: ", checkResult)
+        if (checkResult.check) {
+          done(null, {id: checkResult.username, username: checkResult.username})
+        } else {
+          done(null, false, checkResult.message)
+        }
+      } catch (e) {
+        done(e)
+      }
     }
-  } catch (e) {
-    done(e)
-  }
-}))
+  )
+)
 
 passport.serializeUser((user, done) => {
   try {
@@ -63,8 +78,8 @@ passport.deserializeUser(async (username, done) => {
 })
 
 export function initPassport(app) {
-  app.use(passport.initialize())
-  app.use(passport.session())
+  app.use(passport.initialize({userProperty: "user"}))
+  app.use(passport.session({secret: "keyboard mouse"}))
 }
 
 export function ensureAuthenticated(req, res, next) {
