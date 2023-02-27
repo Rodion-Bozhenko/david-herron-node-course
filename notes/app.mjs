@@ -5,9 +5,6 @@ import logger from "morgan"
 import cookieParser from "cookie-parser"
 import bodyParser from "body-parser"
 import * as http from "http"
-import {approotdir} from "./approotdir.mjs"
-
-const __dirname = approotdir
 import {
   normalizePort,
   onError,
@@ -23,6 +20,10 @@ import DBG from "debug"
 import {useModel as useNotesModel} from "./models/notes-store.mjs"
 import session from "express-session"
 import sessionFileStore from "session-file-store"
+import {approotdir} from "./approotdir.mjs"
+import dotenv from "dotenv/config.js"
+
+const __dirname = approotdir
 
 const FileStore = sessionFileStore(session)
 export const sessionCookieName = "notescookie.sid"

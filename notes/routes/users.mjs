@@ -4,10 +4,13 @@ import passportLocal from "passport-local"
 import * as usersModel from "../models/users-superagent.mjs"
 import {sessionCookieName} from "../app.mjs"
 import DBG from "debug"
+import passportTwitter from "passport-twitter"
 
 const debug = DBG("notes:users-router")
+const dbgerror = DBG("notes:error-users")
 
 const LocalStrategy = passportLocal.Strategy
+const TwitterStrategy = passportTwitter.Strategy
 
 export const router = express.Router()
 
@@ -26,6 +29,7 @@ export function ensureAuthenticated(req, res, next) {
   }
 }
 
+// Local Strategy
 router.get("/login", (req, res, next) => {
   try {
     res.render("login", {title: "Login to Notes", user: req.user})
@@ -36,10 +40,10 @@ router.get("/login", (req, res, next) => {
 
 router.post(
   "/login",
-  passport.authenticate(
-    "local",
-    {failureRedirect: "/users/login", successRedirect: "/"}
-  )
+  passport.authenticate("local", {
+    failureRedirect: "/users/login",
+    successRedirect: "/"
+  })
 )
 
 router.get("/logout", (req, res, next) => {
@@ -76,6 +80,57 @@ passport.use(
   )
 )
 
+// Twitter Strategy
+
+const twitterCallback =
+  process.env.TWITTER_CALBACK_HOST || "http://localhost:3000"
+export let twitterLogin = false
+
+if (process.env.TWITTER_CONSUMER_KEY && process.env.TWITTER_CONSUMER_SECRET) {
+  passport.use(
+    new TwitterStrategy(
+      {
+        consumerKey: process.env.TWITTER_CONSUMER_KEY,
+        consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
+        callbackURL: `${twitterCallback}/users/auth/twitter/callback`
+      },
+      async function(token, tokenSecret, profile, done) {
+        try {
+          const user = await usersModel.findOrCreate({
+            id: profile.username,
+            username: profile.username,
+            password: "",
+            provider: profile.provider,
+            familyName: profile.displayName,
+            givenName: "",
+            middleName: "",
+            photos: profile.photos,
+            emails: profile.emails
+          })
+          done(null, user)
+          twitterLogin = true
+        } catch (e) {
+          dbgerror(e)
+          done(e)
+        }
+      }
+    )
+  )
+} else {
+  twitterLogin = false
+}
+
+// Redirects to Twitter login page
+router.get("/auth/twitter", passport.authenticate("twitter"))
+
+// Invokes after successful login on Twitter login page
+router.get(
+  "/auth/twitter/callback",
+  passport.authenticate("twitter", {
+    successRedirect: "/",
+    failureRedirect: "/users/login"
+  })
+)
 passport.serializeUser((user, done) => {
   try {
     done(null, user.username)

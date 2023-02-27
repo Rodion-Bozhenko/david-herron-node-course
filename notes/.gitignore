@@ -67,3 +67,5 @@ notes.level
 data
 notes-fs-data
 sessions
+notes-sequelize.sqlite3
+notes.sqlite3
