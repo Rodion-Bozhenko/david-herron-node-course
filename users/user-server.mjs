@@ -9,6 +9,7 @@ import {
   SQUser,
   userParams
 } from "./users-sequelize.mjs"
+import bcrypt from "bcrypt"
 
 const log = DBG("users:service")
 
@@ -120,13 +121,16 @@ server.post("/password-check", async (req, res) => {
         username: req.params.username,
         message: "Could not find user"
       }
-    } else if (user.password === req.params.password) {
-      checked = {check: true, username: user.username}
     } else {
-      checked = {
-        check: false,
-        username: req.params.username,
-        message: "Incorrect password"
+      const passwordsEqual = await bcrypt.compare(req.params.password, user.password)
+      if (passwordsEqual) {
+        checked = {check: true, username: user.username}
+      } else {
+        checked = {
+          check: false,
+          username: req.params.username,
+          message: "Incorrect username or password"
+        }
       }
     }
     res.contentType = "json"
