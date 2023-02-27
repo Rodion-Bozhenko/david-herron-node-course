@@ -1,6 +1,13 @@
 import {program} from "commander"
 import restify from "restify-clients"
 import * as util from "util"
+import bcrypt from "bcrypt"
+
+
+async function hashpass(password) {
+  const salt = await bcrypt.genSalt(10)
+  return await bcrypt.hash(password, salt)
+}
 
 let client_port
 let client_host
@@ -43,10 +50,10 @@ program
   .option("--given-name <givenName>", "Given name, or first name, of the user")
   .option("--middle-name <middleName>", "Middle name of the user")
   .option("--email <email>", "Email address for the user")
-  .action((username, cmdObj) => {
+  .action(async (username, cmdObj) => {
     const toPost = {
       username,
-      password: cmdObj.password,
+      password: await hashpass(cmdObj.password),
       provider: "local",
       familyName: cmdObj.familyName,
       givenName: cmdObj.givenName,
@@ -68,10 +75,10 @@ program
   .option("--given-name <givenName>", "Given name, or first name, of the user")
   .option("--middle-name <middleName>", "Middle name of the user")
   .option("--email <email>", "Email address for the user")
-  .action((username, cmdObj) => {
+  .action(async (username, cmdObj) => {
     const toPost = {
       username,
-      password: cmdObj.password,
+      password: await hashpass(cmdObj.password),
       provider: "local",
       familyName: cmdObj.familyName,
       givenName: cmdObj.givenName,
@@ -114,10 +121,10 @@ program
   .option("--given-name <givenName>", "Given name, or first name, of the user")
   .option("--middle-name <middleName>", "Middle name of the user")
   .option("--email <email>", "Email address for the user")
-  .action((username, cmdObj) => {
+  .action(async (username, cmdObj) => {
     const toPost = {
       username,
-      password: cmdObj.password,
+      password: await hashpass(cmdObj.password),
       provider: "local",
       familyName: cmdObj.familyName,
       givenName: cmdObj.givenName,
