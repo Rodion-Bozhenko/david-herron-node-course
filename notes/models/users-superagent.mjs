@@ -1,11 +1,17 @@
 import request from "superagent"
 import url from "url"
 import DBG from "debug"
+import bcrypt from "bcrypt"
 
 const URL = url.URL
 
 const authId = "them"
 const authCode = "D4ED43C0-8BD6-4FE2-B358-7C0E230D11EF"
+
+async function hashpass(password) {
+  const salt = await bcrypt.genSalt(10)
+  return await bcrypt.hash(password, salt)
+}
 
 function reqUrl(path) {
   const requrl = new URL(process.env.USER_SERVICE_URL)
@@ -27,7 +33,7 @@ export async function create(
     .post(reqUrl("/create-user"))
     .send({
       username,
-      password,
+      password: await hashpass(password),
       provider,
       familyName,
       givenName,
@@ -55,7 +61,7 @@ export async function update(
     .post(reqUrl(`/update-user/${username}`))
     .send({
       username,
-      password,
+      password: await hashpass(password),
       provider,
       familyName,
       givenName,
@@ -94,7 +100,7 @@ export async function findOrCreate(profile) {
     .post(reqUrl("/find-or-create"))
     .send({
       username: profile.id,
-      password: profile.password,
+      password: await hashpass(profile.password),
       provider: profile.provider,
       familyName: profile.familyName,
       givenName: profile.givenName,

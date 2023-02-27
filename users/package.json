@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "user-server.mjs",
   "dependencies": {
+    "bcrypt": "^5.1.0",
     "commander": "^10.0.0",
     "cross-env": "^7.0.3",
     "debug": "^4.3.4",
