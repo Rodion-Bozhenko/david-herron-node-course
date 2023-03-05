@@ -1,10 +1,12 @@
-import express from "express";
-import { NotesStore as notes } from "../models/notes-store.mjs";
-import { ensureAuthenticated, twitterLogin } from "./users.mjs";
-import DBG from "debug";
+import express from "express"
+import {NotesStore as notes} from "../models/notes-store.mjs"
+import {ensureAuthenticated, twitterLogin} from "./users.mjs"
+import DBG from "debug"
+import {io} from "../app.mjs"
+import {emitNoteTitles} from "./index.mjs"
 
-const debug = DBG("notes:debug");
-export const router = express.Router();
+const debug = DBG("notes:debug")
+export const router = express.Router()
 
 // Add note
 router.get("/add", ensureAuthenticated, (req, res) => {
@@ -15,42 +17,42 @@ router.get("/add", ensureAuthenticated, (req, res) => {
     user: req.user,
     twitterLogin,
     note: undefined
-  });
-});
+  })
+})
 
 router.post("/save", ensureAuthenticated, async (req, res, next) => {
   try {
-    const { docreate, notekey, title, body } = req.body;
-    debug({ docreate, notekey, title, body });
+    const {docreate, notekey, title, body} = req.body
+    debug({docreate, notekey, title, body})
     if (docreate === "create") {
-      await notes.create(notekey, title, body);
+      await notes.create(notekey, title, body)
     } else {
-      await notes.update(notekey, title, body);
+      await notes.update(notekey, title, body)
     }
-    res.redirect("/notes/view?key=" + notekey);
+    res.redirect("/notes/view?key=" + notekey)
   } catch (e) {
-    next(e);
+    next(e)
   }
-});
+})
 
 router.get("/view", async (req, res, next) => {
   try {
-    let note = await notes.read(req.query.key);
+    let note = await notes.read(req.query.key)
     res.render("noteView", {
       title: note ? note.title : "",
       notekey: req.query.key,
       user: req.user,
       twitterLogin,
       note
-    });
+    })
   } catch (e) {
-    next(e);
+    next(e)
   }
-});
+})
 
 router.get("/edit", ensureAuthenticated, async (req, res, next) => {
   try {
-    const note = await notes.read(req.query.key);
+    const note = await notes.read(req.query.key)
     res.render("noteedit", {
       title: note ? "Edit " + note.title : "Add a Note",
       docreate: false,
@@ -58,35 +60,57 @@ router.get("/edit", ensureAuthenticated, async (req, res, next) => {
       user: req.user,
       twitterLogin,
       note
-    });
+    })
   } catch (e) {
-    next(e);
+    next(e)
   }
-});
+})
 
 router.get("/destroy", ensureAuthenticated, async (req, res, next) => {
   try {
-    const note = await notes.read(req.query.key);
+    const note = await notes.read(req.query.key)
     res.render("notedestroy", {
       title: note ? `Delete ${note.title}` : "",
       notekey: req.query.key,
       user: req.user,
       twitterLogin,
       note
-    });
+    })
   } catch (e) {
-    next(e);
+    next(e)
   }
-});
+})
 
 router.post("/destroy/confirm", ensureAuthenticated, async (req, res, next) => {
   try {
-    await notes.destroy(req.body.notekey);
-    res.redirect("/");
+    await notes.destroy(req.body.notekey)
+    res.redirect("/")
   } catch (e) {
-    next(e);
+    next(e)
   }
-});
+})
 
 export function init() {
+  io.of("/notes").on("connection", (socket) => {
+    console.log("SOCKET_KEY: ", socket.handshake.query.key)
+    if (socket.handshake.query.key) {
+      socket.join(socket.handshake.query.key)
+    }
+  })
+  notes.on("noteupdated", async (note) => {
+    const toEmit = {
+      key: note.key,
+      title: note.title,
+      body: note.body
+    }
+    console.log("NOTE_UPDATED: ", note)
+    io.of("/notes")
+      .to(note.key)
+      .emit("noteupdated", toEmit)
+    await emitNoteTitles()
+  })
+  notes.on("notedestroyed", async (key) => {
+    io.of("/notes").to(key).emit("notedestroyed", key)
+    await emitNoteTitles()
+  })
 }

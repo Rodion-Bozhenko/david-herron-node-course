@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "app.mjs",
   "scripts": {
-    "start": "cross-env DEBUG=notes:* SEQUELIZE_CONNECT=models/sequelize-sqlite.yaml NOTES_MODEL=sequelize USER_SERVICE_URL=http://localhost:5858 node ./app.mjs"
+    "start": "cross-env DEBUG=notes:*,socket.io:* SEQUELIZE_CONNECT=models/sequelize-sqlite.yaml NOTES_MODEL=sequelize USER_SERVICE_URL=http://localhost:5858 node ./app.mjs"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",

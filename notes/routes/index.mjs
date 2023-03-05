@@ -30,7 +30,7 @@ async function getKeyTitleList() {
   return noteList.map((note) => ({ key: note.key, title: note.title }));
 }
 
-const emitNoteTitles = async () => {
+export const emitNoteTitles = async () => {
   const noteList = await getKeyTitleList();
   io.of("/home").emit("notetitles", { noteList });
 };
