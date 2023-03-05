@@ -4,6 +4,15 @@ import {ensureAuthenticated, twitterLogin} from "./users.mjs"
 import DBG from "debug"
 import {io} from "../app.mjs"
 import {emitNoteTitles} from "./index.mjs"
+import {
+  postMessage,
+  destroyMessage,
+  recentMessages,
+  emitter as msgEvents
+} from "../models/messages-sequelize.mjs"
+import DBG from "debug"
+const debug = DBG("notes:home")
+const error = DBG("notes:error-home")
 
 const debug = DBG("notes:debug")
 export const router = express.Router()
@@ -92,9 +101,31 @@ router.post("/destroy/confirm", ensureAuthenticated, async (req, res, next) => {
 
 export function init() {
   io.of("/notes").on("connection", (socket) => {
-    console.log("SOCKET_KEY: ", socket.handshake.query.key)
-    if (socket.handshake.query.key) {
-      socket.join(socket.handshake.query.key)
+    const noteKey = socket.handshake.query.key
+    if (noteKey) {
+      socket.join(noteKey)
+
+      socket.on("create-message", async (newMsg, fn) => {
+        try {
+          await postMessage(
+            newMsg.from,
+            newMsg.namespace,
+            newMsg.room,
+            newMsg.message
+          )
+          fn("ok")
+        } catch (e) {
+          error(`FAIL to create message ${e.stack || e.toString()}`)
+        }
+      })
+
+      socket.on("delete-message", async (data) => {
+        try {
+          await destroyMessage(data.id)
+        } catch (e) {
+          error(`FAIL to delete message with id ${data.id} - ${e.stack || e.toString()}`)
+        }
+      })
     }
   })
   notes.on("noteupdated", async (note) => {
@@ -103,14 +134,17 @@ export function init() {
       title: note.title,
       body: note.body
     }
-    console.log("NOTE_UPDATED: ", note)
-    io.of("/notes")
-      .to(note.key)
-      .emit("noteupdated", toEmit)
+    io.of("/notes").to(note.key).emit("noteupdated", toEmit)
     await emitNoteTitles()
   })
   notes.on("notedestroyed", async (key) => {
     io.of("/notes").to(key).emit("notedestroyed", key)
     await emitNoteTitles()
+  })
+  msgEvents.on("newmessage", (newMsg) => {
+    io.of(newMsg.namespace).to(newMsg.room).emit("newmessage", newMsg)
+  })
+  msgEvents.on("destroymessage", (data) => {
+    io.of(data.namespace).to(data.room).emit("destroymessage", data)
   })
 }
