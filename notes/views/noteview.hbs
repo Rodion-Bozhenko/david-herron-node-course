@@ -1,23 +1,159 @@
 <div class="container-fluid">
-    <div class="row"><div class="col-xs-12">
-            {{#if note}}<h3>{{note.title}}</h3>{{/if}}
-            {{#if note}}<p>{{note.body}}</p>{{/if}}
-            <p>Key: {{notekey}}</p>
-        </div></div>
-    {{#if notekey}}
-        <div class="row"><div class="col-xs-12">
-                <div class="btn-group">
-                    <a
-                        class="btn btn-outline-dark"
-                        href="/notes/destroy?key={{notekey}}"
-                        role="button"
-                    >Delete</a>
-                    <a
-                        class="btn btn-outline-dark"
-                        href="/notes/edit?key={{notekey}}"
-                        role="button"
-                    >Edit</a>
-                </div>
-            </div></div>
-    {{/if}}
+  <div class="row">
+    <div class="col-xs-12">
+      {{#if note}}<h3 id="note-title">{{note.title}}</h3>{{/if}}
+      {{#if note}}<p id="note-body">{{note.body}}</p>{{/if}}
+      <p>Key: {{notekey}}</p>
+    </div>
+  </div>
+{{#if user}}
+  {{#if notekey}}
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="btn-group">
+          <a
+            class="btn btn-outline-dark"
+            href="/notes/destroy?key={{notekey}}"
+          role="button"
+          >Delete</a>
+          <a
+            class="btn btn-outline-dark"
+            href="/notes/edit?key={{notekey}}"
+          role="button"
+          >Edit</a>
+          <button type="button" class="btn btn-outline-dark"
+                  data-toggle="modal"
+                  data-target="#notes-comment-modal">Comment</button>
+        </div>
+      </div>
+    </div>
+    <div id="noteMessages">
+      {{#if messages}}
+        {{#each messages}}
+          <div id="note-message-{{ id }}" class="card">
+            <div class="card-body">
+              <h5 class="card-title">{{ from }}</h5>
+              <div class="card-text">{{ message }}
+                <small style="display: block">{{ timestamp }}</small>
+              </div>
+              <button type="button" class="btn btn-primary message-del-button"
+                      data-id="{{ id }}" data-namespace="{{ namespace }}" data-room="{{ room }}">
+                Delete
+              </button>
+            </div>
+          </div>
+        {{/each}}
+      {{/if}}
+    </div>
+  {{/if}}
+{{/if}}
 </div>
+
+{{#if notekey}}{{#if user}}
+  <div class="modal fade" id="notes-comment-modal" tabindex="-1"
+       role="dialog" aria-labelledby="noteCommentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content"><div class="modal-header">
+        <h5 class="modal-title" id="noteCommentModalLabel">Leave a Comment</h5>
+        <button type="button" class="close" data-dismiss="modal"
+                aria-label="Close"><span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <div class="modal-body">
+          <form id="submit-comment">
+            <input id="comment-from" type="hidden"
+                   name="from" value="{{ user.id }}">
+            <input id="comment-namespace" type="hidden"
+                   name="namespace" value="/notes">
+            <input id="comment-room" type="hidden"
+                   name="room" value="{{notekey}}">
+            <input id="comment-key" type="hidden"
+                   name="key" value="{{notekey}}">
+            <fieldset>
+              <div class="form-group">
+                <label for="noteCommentTextArea">Your Excellent
+                  Thoughts</label>
+                <textarea id="noteCommentTextArea" name="message"
+                          class="form-control" rows="3"></textarea>
+              </div>
+              <div class="form-group">
+                <button id="submitNewComment" type="submit"
+                        class="btn btn-primary col-sm-offset-2 col-sm-10">
+                  Make Comment</button>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      </div></div>
+  </div>
+{{/if}}{{/if}}
+{{> footerjs}}
+
+{{#if notekey}}
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    $(document).ready(function() {
+      const socket = io("/notes", {
+        query: {key: "{{notekey}}"}
+      })
+      socket.on("noteupdated", (note) => {
+        $('h3#note-title').empty();
+        $('h3#note-title').text(note.title);
+        $('#navbar-title').empty();
+        $('#navbar-title').text(note.title);
+        $('#note-body').empty();
+        $('#note-body').text(note.body);
+      })
+      socket.on("notedestroyed", () => {
+        window.location.href = "/"
+      })
+      {{#if user}}
+        $("#submitNewComment").on("click", function() {
+          socket.emit("create-message", {
+              from: $("#comment-from").val(),
+              namespace: $('#comment-namespace').val(),
+              room: $('#comment-room').val(),
+              key: $('#comment-key').val(),
+              message: $('#noteCommentTextArea').val()
+            },
+            () => {
+            $('#notes-comment-modal').modal('hide');
+            $('#noteCommentTextArea').empty();
+          })
+        })
+        socket.on("newmessage", (newMsg) => {
+          var msgTxt = [
+            '<div id="note-message-%id%" class="card">',
+            '<div class="card-body">',
+            '<h5 class="card-title">%from%</h5>',
+            '<div class="card-text">%message%',
+            '<small style="display: block">%timestamp%</small>',
+            '</div>',
+            '<button type="button" class="btn btn-primary message-del-button" data-id="%id%" data-namespace="%namespace%" data-room="%room%">',
+            'Delete',
+            '</button>',
+            '</div>',
+            '</div>'
+          ].join('\n')
+            .replace(/%id%/g, newMsg.id)
+            .replace(/%from%/g, newMsg.from)
+            .replace(/%namespace%/g, newMsg.namespace)
+            .replace(/%room%/g, newMsg.room)
+            .replace(/%message%/g, newMsg.message)
+            .replace(/%timestamp%/g, newMsg.timestamp);
+          $('#noteMessages').prepend(msgTxt);
+        })
+        $('button.message-del-button').on('click', function(event) {
+          socket.emit('delete-message', {
+            id: $(event.target).data('id'),
+            namespace: $(event.target).data('namespace'),
+            room: $(event.target).data('room')
+          })
+        });
+        socket.on('destroymessage', (data) => {
+          $('#note-message-'+data.id).remove();
+        });
+      {{/if}}
+    })
+  </script>
+{{/if}}
