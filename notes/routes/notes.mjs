@@ -10,11 +10,8 @@ import {
   recentMessages,
   emitter as msgEvents
 } from "../models/messages-sequelize.mjs"
-import DBG from "debug"
-const debug = DBG("notes:home")
-const error = DBG("notes:error-home")
-
-const debug = DBG("notes:debug")
+const debug = DBG("notes:notes-router")
+const error = DBG("notes:error-notes")
 export const router = express.Router()
 
 // Add note
@@ -46,13 +43,15 @@ router.post("/save", ensureAuthenticated, async (req, res, next) => {
 
 router.get("/view", async (req, res, next) => {
   try {
-    let note = await notes.read(req.query.key)
+    const note = await notes.read(req.query.key)
+    const messages = await recentMessages("/notes", req.query.key)
     res.render("noteView", {
       title: note ? note.title : "",
       notekey: req.query.key,
       user: req.user,
       twitterLogin,
-      note
+      note,
+      messages
     })
   } catch (e) {
     next(e)
@@ -121,6 +120,7 @@ export function init() {
 
       socket.on("delete-message", async (data) => {
         try {
+          debug("DELETING_MESSAGE_WITH_ID: ", data.id)
           await destroyMessage(data.id)
         } catch (e) {
           error(`FAIL to delete message with id ${data.id} - ${e.stack || e.toString()}`)

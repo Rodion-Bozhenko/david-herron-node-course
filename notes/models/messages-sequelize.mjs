@@ -68,9 +68,10 @@ export async function postMessage(from, namespace, room, message) {
 }
 
 export async function destroyMessage(id) {
-  debug("DELETING_NOTE_WITH_ID: ", id)
+  debug("DELETING_MESSAGE_WITH_ID: ", id)
   await connectDB()
-  await SQMessage.destroy({where: {id}})
+  const message = await SQMessage.findOne({where: {id}})
+  if (message) await message.destroy()
 }
 
 export async function recentMessages(namespace, room) {
