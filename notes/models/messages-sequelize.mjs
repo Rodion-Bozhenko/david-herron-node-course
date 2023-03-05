@@ -1,9 +1,8 @@
-import {
-  connectDB as connectSequelize,
-  close as closeSequelize
-} from "./sequelize.mjs"
+import {connectDB as connectSequelize} from "./sequelize.mjs"
 import EventEmitter from "events"
 import {DataTypes, Model} from "sequelize"
+import DBG from "debug";
+const debug = DBG("notes:messages-model")
 
 class MessagesEmitter extends EventEmitter {}
 export const emitter = new MessagesEmitter()
@@ -58,6 +57,7 @@ function sanitizedMessage(msg) {
 
 export async function postMessage(from, namespace, room, message) {
   await connectDB()
+  debug({from, namespace, room, message})
   await SQMessage.create({
     from,
     namespace,
@@ -68,11 +68,13 @@ export async function postMessage(from, namespace, room, message) {
 }
 
 export async function destroyMessage(id) {
+  debug("DELETING_NOTE_WITH_ID: ", id)
   await connectDB()
   await SQMessage.destroy({where: {id}})
 }
 
 export async function recentMessages(namespace, room) {
+  debug("RECENT_MESSAGES: ", {namespace, room})
   await connectDB()
   const messages = await SQMessage.findAll({
     where: {namespace, room},
