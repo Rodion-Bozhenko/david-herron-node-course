@@ -140,7 +140,7 @@ server.post("/password-check", async (req, res) => {
   }
 })
 
-server.listen(process.env.PORT, "localhost", function() {
+server.listen(process.env.PORT, process.env.REST_LISTEN || "localhost", function() {
   log(server.name + " listening at " + server.url)
 })
 
