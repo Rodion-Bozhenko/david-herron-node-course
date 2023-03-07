@@ -45,7 +45,7 @@ router.get("/view", async (req, res, next) => {
   try {
     const note = await notes.read(req.query.key)
     const messages = await recentMessages("/notes", req.query.key)
-    res.render("noteView", {
+    res.render("noteview", {
       title: note ? note.title : "",
       notekey: req.query.key,
       user: req.user,
