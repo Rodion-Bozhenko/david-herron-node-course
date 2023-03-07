@@ -4,7 +4,7 @@ sudo mysql --user=root <<EOF
 CREATE DATABASE userauth;
 CREATE USER 'userauth'@'localhost' IDENTIFIED BY 'userauth';
 GRANT ALL PRIVILEGES ON userauth.* TO 'userauth'@'localhost'
-WITH GRANT OPTION
+WITH GRANT OPTION;
 EOF
 
 ### Set up the UserAuthentication service code
