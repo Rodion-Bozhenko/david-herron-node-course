@@ -3,7 +3,6 @@ import restify from "restify-clients"
 import * as util from "util"
 import bcrypt from "bcrypt"
 
-
 async function hashpass(password) {
   const salt = await bcrypt.genSalt(10)
   return await bcrypt.hash(password, salt)
@@ -17,11 +16,12 @@ let authId = "them"
 let authCode = "D4ED43C0-8BD6-4FE2-B358-7C0E230D11EF"
 
 const client = (program) => {
+  const options = program.opts()
   if (typeof process.env.PORT === "string") client_port = parseInt(process.env.PORT)
-  if (typeof program.port === "string") client_port = parseInt(program.port)
-  if (typeof program.host === "string") client_host = program.host
-  if (typeof program.url === "string") {
-    let purl = new URL(program.url)
+  if (typeof options.port === "string") client_port = parseInt(options.port)
+  if (typeof options.host === "string") client_host = options.host
+  if (typeof options.url === "string") {
+    let purl = new URL(options.url)
     if (purl.host) client_host = purl.host
     if (purl.port) client_port = purl.port
     if (purl.protocol) client_protocol = purl.protocol
@@ -42,6 +42,8 @@ program
   .option("-p, --port <port>", "Port number for user server, if using localhost")
   .option("-h, --host <host>", "Port number for user server, if using localhost")
   .option("-u, --url <url>", "Connection URL for user server, if using a remote server")
+
+
 program
   .command("add <username>")
   .description("Add a user to the user server")
@@ -143,23 +145,20 @@ program
   .command("destroy <username>")
   .description("Destroy a user on the user server")
   .action((username) => {
-    client(program).del(`/destroy/${username}`,
-      (err, req, res, obj) => {
-        if (err) console.error(err.stack)
-        else console.log("Deleted - result= " + util.inspect(obj))
-      })
+    client(program).del(`/destroy/${username}`, (err, req, res, obj) => {
+      if (err) console.error(err.stack)
+      else console.log("Deleted - result= " + util.inspect(obj))
+    })
   })
 
 program
   .command("password-check <username> <password>")
   .description("Check whether the user password checks out")
   .action((username, password) => {
-    client(program).post("/password-check", {username, password},
-      (err, req, res, obj) => {
-        if (err) console.error(err.stack)
-        else console.log(obj)
-      })
+    client(program).post("/password-check", {username, password}, (err, req, res, obj) => {
+      if (err) console.error(err.stack)
+      else console.log(obj)
+    })
   })
-
 
 program.parse(process.argv)
