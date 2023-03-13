@@ -62,22 +62,6 @@ services:
     environment:
       REDIS_ENDPOINT: "redis"
 
-  svc-notes-2:
-    build: ../notes
-    container_name: svc-notes-2
-    depends_on:
-      - db-notes
-      - redis
-    networks:
-      - frontnet
-      - svcnet
-    ports:
-      - "3020:3020"
-    restart: always
-    environment:
-      PORT: "3020"
-      REDIS_ENDPOINT: "redis"
-
   redis:
     image: "redis"
     networks:

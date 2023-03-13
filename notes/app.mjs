@@ -26,37 +26,10 @@ import {Server} from "socket.io"
 import passport from "passport"
 import RedisStore from "connect-redis"
 import {createClient} from "redis"
+import {createAdapter} from "@socket.io/redis-adapter"
 const dbgerror = DBG("notes:error")
 const dbg = DBG("notes:debug")
-
-let sessionStore
-dbg("REDIS_ENDPOINT: ", process.env.REDIS_ENDPOINT)
-if (process.env.REDIS_ENDPOINT) {
-  const redisClient = createClient({
-    socket: {
-      host: process.env.REDIS_ENDPOINT
-    }
-  })
-  redisClient.on("connect", () => dbg("REDIS_CONNECTED"))
-  redisClient.on("error", (err) => dbgerror("Redis Client Error", err))
-  await redisClient.connect()
-  sessionStore = new RedisStore({client: redisClient})
-} else {
-  const FileStore = sessionFileStore(session)
-  sessionStore = new FileStore({path: "sessions"})
-}
-
 const __dirname = approotdir
-
-export const sessionCookieName = "notescookie.sid"
-
-const sessionMiddleware = session({
-  store: sessionStore,
-  secret: "keyboard mouse",
-  resave: true,
-  saveUninitialized: true,
-  name: sessionCookieName
-})
 
 useNotesModel(process.env.NOTES_MODEL || "memory")
   .then(() => {
@@ -72,6 +45,9 @@ export const port = normalizePort(process.env.PORT || "3000")
 app.set("port", port)
 
 export const server = http.createServer(app)
+
+export const io = new Server(server)
+
 server.listen(port)
 server.on("error", (err) => onError(err, port))
 server.on("listening", () => onListening(server))
@@ -80,9 +56,38 @@ server.on("request", (req) => {
   debug(`${new Date().toISOString()} request ${req.method}
    ${req.url}`)
 })
+
+let sessionStore
+dbg("REDIS_ENDPOINT: ", process.env.REDIS_ENDPOINT)
+if (process.env.REDIS_ENDPOINT) {
+  const redisClient = createClient({
+    socket: {
+      host: process.env.REDIS_ENDPOINT
+    }
+  })
+  redisClient.on("connect", () => dbg("REDIS_CONNECTED"))
+  redisClient.on("error", (err) => dbgerror("Redis Client Error", err))
+  const subRedisClient = redisClient.duplicate()
+  Promise.all([subRedisClient.connect(), redisClient.connect()]).then(() => {
+    io.adapter(createAdapter(redisClient, subRedisClient))
+  })
+  sessionStore = new RedisStore({client: redisClient})
+} else {
+  const FileStore = sessionFileStore(session)
+  sessionStore = new FileStore({path: "sessions"})
+}
+
+export const sessionCookieName = "notescookie.sid"
+
+const sessionMiddleware = session({
+  store: sessionStore,
+  secret: "keyboard mouse",
+  resave: true,
+  saveUninitialized: true,
+  name: sessionCookieName
+})
 app.use(sessionMiddleware)
 initPassport(app)
-export const io = new Server(server)
 const wrap = (middleware) => (socket, next) =>
   middleware(socket.request, {}, next)
 io.use(wrap(sessionMiddleware))
