@@ -4,7 +4,8 @@
   "main": "app.mjs",
   "scripts": {
     "start": "cross-env DEBUG=notes:*,socket.io:* SEQUELIZE_CONNECT=models/sequelize-sqlite.yaml NOTES_MODEL=sequelize USER_SERVICE_URL=http://localhost:5858 node ./app.mjs",
-    "on-server": "cross-env DEBUG=notes:** SEQUELIZE_CONNECT=models/sequelize-mysql.yaml NOTES_MODEL=sequelize USER_SERVICE_URL=http://192.168.64.3:5858 PORT=3000 node ./app.mjs"
+    "on-server": "cross-env DEBUG=notes:** SEQUELIZE_CONNECT=models/sequelize-mysql.yaml NOTES_MODEL=sequelize USER_SERVICE_URL=http://192.168.64.3:5858 PORT=3000 node ./app.mjs",
+    "docker-build": "docker build -t svc-notes ."
   },
   "dependencies": {
     "bcrypt": "^5.1.0",

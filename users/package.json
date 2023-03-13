@@ -22,7 +22,8 @@
   },
   "scripts": {
     "start": "cross-env DEBUG=users:* PORT=5858 SEQUELIZE_CONNECT=sequelize-sqlite.yaml node ./user-server.mjs",
-    "on-server": "DEBUG=users:* REST_LISTEN=0.0.0.0 PORT=5858 SEQUELIZE_CONNECT=sequelize-mysql.yaml node ./user-server.mjs"
+    "on-server": "DEBUG=users:* REST_LISTEN=0.0.0.0 PORT=5858 SEQUELIZE_CONNECT=sequelize-mysql.yaml node ./user-server.mjs",
+    "docker-build": "docker build -t svc-userauth ."
   },
   "author": "",
   "license": "ISC",
