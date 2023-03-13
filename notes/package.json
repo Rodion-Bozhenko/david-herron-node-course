@@ -3,14 +3,16 @@
   "version": "1.0.0",
   "main": "app.mjs",
   "scripts": {
-    "start": "cross-env DEBUG=notes:*,socket.io:* SEQUELIZE_CONNECT=models/sequelize-sqlite.yaml NOTES_MODEL=sequelize USER_SERVICE_URL=http://localhost:5858 node ./app.mjs",
+    "start": "cross-env DEBUG=notes:*,socket.io:* SEQUELIZE_CONNECT=models/sequelize-sqlite.yaml NOTES_MODEL=sequelize USER_SERVICE_URL=http://localhost:5858 PORT=3001 node ./app.mjs",
     "on-server": "cross-env DEBUG=notes:** SEQUELIZE_CONNECT=models/sequelize-mysql.yaml NOTES_MODEL=sequelize USER_SERVICE_URL=http://192.168.64.3:5858 PORT=3000 node ./app.mjs",
     "docker-build": "docker build -t svc-notes ."
   },
   "dependencies": {
+    "@socket.io/redis-adapter": "^8.1.0",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.1",
     "bootstrap": "4.5.x",
+    "connect-redis": "^7.0.1",
     "cookie-parser": "~1.4.4",
     "cross-env": "^7.0.3",
     "debug": "~2.6.9",
@@ -32,6 +34,7 @@
     "passport-local": "^1.0.0",
     "passport-twitter": "^1.0.4",
     "popper.js": "1.16.x",
+    "redis": "^4.6.5",
     "rotating-file-stream": "^3.0.4",
     "sequelize": "^6.28.2",
     "session-file-store": "^1.5.0",

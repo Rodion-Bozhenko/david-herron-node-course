@@ -52,12 +52,21 @@ services:
     container_name: svc-notes
     depends_on:
       - db-notes
+      - redis
     networks:
       - frontnet
       - svcnet
     ports:
       - "3000:3000"
     restart: always
+    environment:
+      REDIS_ENDPOINT: "redis"
+
+  redis:
+    image: "redis"
+    networks:
+      - frontnet
+    container_name: redis
 
 networks:
   frontnet:
